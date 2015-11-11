@@ -1,5 +1,5 @@
 ### QNIBTerminal ubuntu image
-FROM qnib/u-syslog
+FROM qnib/u-syslog:14.04
 
 ENV TERM=xterm \
     CONSUL_VER=0.5.2 \
