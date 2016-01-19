@@ -2,10 +2,10 @@
 
 PIDFILE=/var/run/consul.pid
 CONSUL_BIN=/usr/local/bin/consul
-ADDR=eth0
-RUN_SERVER=${RUN_SERVER-auto}
+NET_DEV=${CONSUL_NET_DEV-eth0}
+RUN_SERVER=${RUN_SERVER-false}
 LINKED_SERVER=${LINKED_SERVER-0}
-BOOTSTRAP_CONSUL=${BOOTSTRAP_CONSUL}
+BOOTSTRAP_CONSUL=${BOOTSTRAP_CONSUL-false}
 CONSUL_BOOTSTRAP_SOLO=${CONSUL_BOOTSTRAP_SOLO-$BOOTSTRAP_CONSUL}
 CONSUL_CLUSTER_IPS=${CONSUL_CLUSTER_IPS-$LINKDED_SERVER}
 WAN_SERVER=${WAN_SERVER}
@@ -53,12 +53,12 @@ for env_line in $(env);do
 done
 
 ## Check if eth0 already exists
-IPv4_RAW=$(ip -o -4 addr show ${ADDR})
+IPv4_RAW=$(ip -o -4 addr show ${NET_DEV})
 EC=$?
 if [ ${EC} -eq 1 ];then
     echo "## Wait for pipework to attach device 'eth0'"
     pipework --wait
-    IPv4_RAW=$(ip -o -4 addr show ${ADDR})
+    IPv4_RAW=$(ip -o -4 addr show ${NET_DEV})
 fi
 IPv4=$(echo ${IPv4_RAW}|egrep -o "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+"|head -n1)
 if [ "X${ADDV_ADDR}" != "X" ];then
@@ -105,21 +105,24 @@ if [ "X${WAN_SERVER}" != "X" ];then
     JOIN_WAN="-join-wan=${WAN_SERVER}"
 fi
 
-
-if [ "X${BOOTSTRAP_CONSUL}" == "Xfalse" ];then
-    sed -i -e "s#\"bootstrap\":.*#\"bootstrap\": false,#" /etc/consul.json
+if [ "X${BOOTSTRAP_CONSUL}" == "Xtrue" ];then
+    sed -i -e "s#\"bootstrap\":.*#\"bootstrap\": true,#" /etc/consul.json
+    RUN_SERVER=true
+elif [ "X${CONSUL_BOOTSTRAP}" == "Xtrue" ];then
+    sed -i -e "s#\"bootstrap\":.*#\"bootstrap\": true,#" /etc/consul.json
+    RUN_SERVER=true
+elif [ "X${CONSUL_BOOTSTRAP_EXPECT}" != "X" ];then
+    sed -i -e "s#\"bootstrap\":.*#\"bootstrap_expect\": ${CONSUL_BOOTSTRAP_EXPECT},#" /etc/consul.json
+    RUN_SERVER=true
 fi
-if [ "X${RUN_SERVER}" == "Xfalse" ];then
-    sed -i -e "s#\"server\":.*#\"server\": false,#" /etc/consul.json
+if [ "X${RUN_SERVER}" == "Xtrue" ];then
+    sed -i -e "s#\"server\":.*#\"server\": true,#" /etc/consul.json
 fi
-#if [ "X${ENABLE_SYSLOG}" == "Xtrue" ];then
-#    sed -i -e "s#\"enable_syslog\":.*#\"enable_syslog\": true,#" /etc/consul.json
-#fi
 if [ "X${DNS_RECURSOR}" != "X" ];then
     sed -i -e "s#\"recursor\":.*#\"recursor\": \"${DNS_RECURSOR}\",#" /etc/consul.json
 fi
 
-mkdir -p /etc/consul.d
+mkdir -p /etc/consul.d/
 mkdir -p /var/consul/
 ${CONSUL_BIN} agent -pid-file=${PIDFILE} -config-file=/etc/consul.json -config-dir=/etc/consul.d ${JOIN_WAN} &
 
