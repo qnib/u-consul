@@ -10,10 +10,18 @@ CONSUL_BOOTSTRAP_SOLO=${CONSUL_BOOTSTRAP_SOLO-$BOOTSTRAP_CONSUL}
 CONSUL_CLUSTER_IPS=${CONSUL_CLUSTER_IPS-$LINKDED_SERVER}
 WAN_SERVER=${WAN_SERVER}
 CONSUL_DOMAIN_MATCH=${CONSUL_DOMAIN_MATCH-false}
+CONSUL_RM_SRV_CHECK=${CONSUL_RM_SRV_CHECK}
 
 if [ ! -f ${CONSUL_BIN} ];then
    CONSUL_BIN=/usr/bin/consul
 fi
+
+for SRV in $(echo ${CONSUL_RM_SRV_CHECK} | sed -e 's/,/ /g');do
+    if [ -f /etc/consul.d/${SRV}.json ];then
+        rm -f /etc/consul.d/${SRV}.json
+    fi
+done
+
 
 if [ "X${CONSUL_NODE_NAME}" == "X" ];then
     NODE_NAME=$(hostname -f)
