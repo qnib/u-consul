@@ -1,7 +1,8 @@
 ### QNIBTerminal ubuntu image
 FROM qnib/u-syslog
 
-RUN apt-get install -y bsdtar curl
+RUN apt-get update && \
+    apt-get install -y bsdtar curl
 ENV TERM=xterm \
     BOOTSTRAP_CONSUL=false \
     RUN_SERVER=false \
@@ -22,6 +23,4 @@ RUN curl -Lsf https://releases.hashicorp.com/consul-template/${CT_VER}/consul-te
 ADD etc/consul.json /etc/consul.json
 ADD etc/supervisord.d/consul.ini /etc/supervisord.d/
 ADD opt/qnib/consul/bin/start.sh /opt/qnib/consul/bin/
-RUN mkdir -p /opt/qnib/bin && \
-    ln -s /opt/qnib/consul/bin/start.sh /opt/qnib/bin/start_consul.sh
 ADD opt/qnib/consul/etc/bash_functions.sh /opt/qnib/consul/etc/
