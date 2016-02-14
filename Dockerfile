@@ -1,5 +1,5 @@
 ### QNIBTerminal ubuntu image
-FROM qnib/u-syslog
+FROM qnib/u-supervisor
 
 RUN apt-get update && \
     apt-get install -y bsdtar curl
