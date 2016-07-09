@@ -8,7 +8,7 @@ ENV TERM=xterm \
     BOOTSTRAP_CONSUL=false \
     RUN_SERVER=false \
     CT_VER=0.14.0 \
-    QNIB_CONSUL=0.1.2
+    QNIB_CONSUL=0.1.3.4
 RUN apt-get update && \
     apt-get install -y bsdtar curl
 RUN curl -fsL https://releases.hashicorp.com/consul/${CONSUL_VER}/consul_${CONSUL_VER}_linux_amd64.zip | bsdtar xf - -C /usr/local/bin/ \
