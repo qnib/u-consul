@@ -23,5 +23,5 @@ RUN apt-get update \
  && curl -fsL https://github.com/qnib/consul-content/releases/download/${QNIB_CONSUL}/consul.tar |tar xf - -C /opt/qnib/ \
  && unset QNIB_CONSUL
 
-ADD etc/consul.json /etc/consul.json
+ADD etc/consul.d/agent.json /etc/consul.d/
 ADD etc/supervisord.d/consul.ini /etc/supervisord.d/
