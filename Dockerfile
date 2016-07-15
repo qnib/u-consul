@@ -20,6 +20,6 @@ RUN curl -Lsf https://releases.hashicorp.com/consul-template/${CT_VER}/consul-te
  && chmod +x /usr/local/bin/consul-template \
  && unset CT_VER
 
-ADD etc/consul.json /etc/consul.json
 ADD etc/supervisord.d/consul.ini /etc/supervisord.d/
 RUN curl -fsL https://github.com/qnib/consul-content/releases/download/${QNIB_CONSUL}/consul.tar |tar xf - -C /opt/qnib/
+ADD etc/consul.d/agent.json /etc/consul.d/
