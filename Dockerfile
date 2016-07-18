@@ -2,7 +2,7 @@
 FROM qnib/u-supervisor
 
 RUN apt-get update && \
-    apt-get install -y bsdtar curl
+    apt-get install -y bsdtar curl iproute
 ENV TERM=xterm \
     CONSUL_VER=0.6.4 \
     BOOTSTRAP_CONSUL=false \
