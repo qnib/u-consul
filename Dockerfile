@@ -1,17 +1,15 @@
 ### QNIBTerminal ubuntu image
 FROM qnib/u-supervisor
 
-RUN apt-get update && \
-    apt-get install -y bsdtar curl iproute
 ENV TERM=xterm \
-    CONSUL_VER=0.6.4 \
     BOOTSTRAP_CONSUL=false \
-    RUN_SERVER=false \
-    CT_VER=0.14.0 \
-    QNIB_CONSUL=0.1.3.4 \
-    DUMB_INIT_VER=1.1.1
-RUN apt-get update && \
-    apt-get install -y bsdtar curl wget \
+    RUN_SERVER=false
+ARG CONSUL_VER=0.6.4
+ARG CT_VER=0.15.0 
+ARG DUMB_INIT_VER=1.1.1
+
+RUN apt-get update \
+ && apt-get install -y bsdtar curl iproute wget \
  && curl -fsL https://releases.hashicorp.com/consul/${CONSUL_VER}/consul_${CONSUL_VER}_linux_amd64.zip | bsdtar xf - -C /usr/local/bin/ \
  && chmod +x /usr/local/bin/consul \
  && mkdir -p /opt/consul-web-ui/ \
@@ -22,8 +20,11 @@ RUN apt-get update && \
  && unset CT_VER \
  && wget -qO /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v${DUMB_INIT_VER}/dumb-init_${DUMB_INIT_VER}_amd64 \
  && chmod +x /usr/local/bin/dumb-init \
- && unset DUMB_INIT_VER
-
+ && wget -qO /usr/local/bin/go-github https://github.com/qnib/go-github/releases/download/0.2.2/go-github_0.2.2_Linux \
+ && chmod +x /usr/local/bin/go-github \
+ && echo "# consul-content: $(/usr/local/bin/go-github rLatestUrl --ghorg qnib --ghrepo consul-content --regex ".*\.tar" --limit 1)" \
+ && curl -fsL $(/usr/local/bin/go-github rLatestUrl --ghorg qnib --ghrepo consul-content --regex ".*\.tar" --limit 1) |tar xf - -C /opt/qnib/ 
 ADD etc/supervisord.d/consul.ini /etc/supervisord.d/
-RUN curl -fsL https://github.com/qnib/consul-content/releases/download/${QNIB_CONSUL}/consul.tar |tar xf - -C /opt/qnib/
-ADD etc/consul.d/agent.json /etc/consul.d/
+ADD etc/consul.d/agent.json \
+    etc/consul.d/consul.json \
+    /etc/consul.d/
